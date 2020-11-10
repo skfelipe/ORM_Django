@@ -50,3 +50,20 @@ class Unico(models.Model):
         if self.__class__.objects.count():
             self.pk = self.__class__.objects.first().pk
         super().save(*args, **kwargs)
+
+    @classmethod
+    def truncate(cls):
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute('TRUNCATE TABLE "{0}" CASCADE'.format(cls._meta.db_table))
+
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+
+@receiver(post_save, sender=Categoria)
+def categoria_saved(sender, **kwargs):
+    print("Categoria Guardada")
+
+@receiver(post_delete, sender=Categoria)
+def categoria_deleted(sender, **kwargs):
+    print("Categoria Eliminada")

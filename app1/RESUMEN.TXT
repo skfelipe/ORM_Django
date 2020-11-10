@@ -226,3 +226,54 @@ manage.py shell
     Categoria.objects.all()
 
 
+######################################
+####### Elimianar  Registros #########
+######################################
+
+    from app1.models import Unico
+    Unico.objects.all()
+    Unico.objects.first().nombre
+    Unico.objects.filter(nombre= 'Emma Aurora').delete()
+    Unico.objects.all().count()
+
+    Unico.objects.create(nombre= 'Emma')
+    Unico.objects.all().count()
+    Unico.objects.all().delete()
+
+    Unico.objects.all().count()
+    Unico.objects.create(nombre= 'Emma')
+
+    Unico.truncate()
+
+######################################
+############# signals  ###############
+######################################
+
+    pre_init   | post_init
+    pre_save   | post_save
+    pre_delete | post_delete
+
+    from app1.models import Categoria
+    cat = Categoria.objects.first()
+    cat
+    cat.descripcion='Pithon'
+    cat.save()
+
+    Categoria.objects.filter(descripcion= 'PYTHON').delete()
+
+
+########################################################################################################################################################
+########################################################################################################################################################
+
+
+######################################
+############ Order by  ###############
+######################################
+
+
+
+
+
+
+
+
