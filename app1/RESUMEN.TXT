@@ -1,0 +1,228 @@
+manage.py shell
+
+#####################################
+####### PRIMERA FORMA DE OR #########
+#####################################
+
+    from app1.models import Categoria
+    # CONDICION CON OR PARA BUSCAR DESCRIPCION QUE COMIENCEN CON LA LETRA P O B
+
+    qs = Categoria.objects.filter(descripcion__startswith='P') | Categoria.objects.filter(descripcion__startswith='B')
+
+    # IMPRIMIR QUERY SET
+
+    str(qs.query)
+
+#####################################
+####### SEGUNDA FORMA DE OR #########
+#####################################
+
+    from django.db.models import Q
+    # CONDICION CON OR PARA BUSCAR DESCRIPCION QUE COMIENCEN CON LA LETRA P O B
+    qs = Categoria.objects.filter(Q(descripcion__startswith='P') | Q(descripcion__startswith='B'))
+
+    # IMPRIMIR QUERY SET
+    str(qs.query)
+
+    'SELECT "app1_categoria"."id", "app1_categoria"."activo", "app1_categoria"."creado", "app1_categoria"."modificado",
+    "app1_categoria"."descripcion" FROM "app1_categoria" WHERE ("app1_categoria"."descripcion"::text LIKE P% OR "app1_categoria"."descripcion"::text LIKE B%)'
+
+    # DEVUELVE TODOS LOS REGISTROS MAYOR QUE DOS
+
+    qs = Categoria.objects.filter(id__gt=2)
+
+########################################################################################################################################################
+########################################################################################################################################################
+
+
+######################################
+####### PRIMERA FORMA DE AND #########
+######################################
+
+    qs = Categoria.objects.filter(descripcion__startswith='P', activo=True)
+    qs
+    str(qs.query)
+    'SELECT "app1_categoria"."id", "app1_categoria"."activo", "app1_categoria"."creado", "app1_categoria"."modificado", "app1_categoria"."descripcion" FROM "app1_categoria" WHERE ("app1_categoria"."activo" AND "app1_categoria"."descripcion"::text LIKE P%)'
+
+######################################
+####### SEGUNDA FORMA DE AND #########
+######################################
+
+    qs = Categoria.objects.filter(descripcion__startswith='P') & Categoria.objects.filter(activo='True')
+    qs
+    str(qs.query)
+    'SELECT "app1_categoria"."id", "app1_categoria"."activo", "app1_categoria"."creado", "app1_categoria"."modificado", "app1_categoria"."descripcion" FROM "app1_categoria" WHERE ("app1_categoria"."descripcion"::text LIKE P% AND "app1_categoria"."activo")'
+
+######################################
+####### TERCERA FORMA DE AND #########
+######################################
+
+    qs = Categoria.objects.filter(Q(descripcion__startswith='F') & Q(activo=True))
+    qs
+    str(qs.query)
+
+
+########################################################################################################################################################
+########################################################################################################################################################
+
+######################################
+####### PRIMERA FORMA DE NOT #########
+######################################
+
+    qs = Categoria.objects.exclude(id=2)
+    qs
+    str(qs.query)
+    'SELECT "app1_categoria"."id", "app1_categoria"."activo", "app1_categoria"."creado", "app1_categoria"."modificado", "app1_categoria"."descripcion" FROM "app1_categoria" WHERE NOT ("app1_categoria"."id" = 2)'
+
+
+######################################
+####### SEGUNDA FORMA DE NOT #########
+######################################
+
+    qs = Categoria.objects.filter(~Q(id__lt=2))
+    qs
+    str(qs.query)
+    'SELECT "app1_categoria"."id", "app1_categoria"."activo", "app1_categoria"."creado", "app1_categoria"."modificado", "app1_categoria"."descripcion" FROM "app1_categoria" WHERE NOT ("app1_categoria"."id" < 2)'
+
+########################################################################################################################################################
+########################################################################################################################################################
+
+######################################
+####### PRIMERA FORMA DE NOT #########
+######################################
+
+    q1 = Categoria.objects.filter(activo=True)
+    q2 = Categoria.objects.filter(activo=False)
+    q1.union(q2)
+
+
+######################################
+####### SEGUNDA FORMA DE NOT #########
+######################################
+
+    from app1.models import SubCategoria
+
+    Categoria.objects.all().values_list("id", "descripcion").union(SubCategoria.objects.all().values_list("id","descripcion"))
+
+
+########################################################################################################################################################
+########################################################################################################################################################
+
+    Obtener registros por campos
+
+    Categoria.objects.filter(activo=False).values('id','descripcion')
+
+    Categoria.objects.filter(activo=False).values_list('id','descripcion')
+
+    Categoria.objects.filter(activo=False).only('id','descripcion')
+
+     insert into app1_subcategoria (activo, creado, modificado, descripcion, categoria_id)
+    values (true, now(), now(), 'PostgreSQL',1),
+    (true, now(), now(), 'Django',2),
+    (true, now(), now(), 'ResFull Api con Django',3);
+
+######################################
+############## SUBQUERY ##############
+######################################
+
+    from app1.models import SubCategoria
+    from django.db.models import Subquery
+
+    scat =  SubCategoria.objects.filter(activo=True)
+    scat
+
+    Categoria.objects.filter(id__in=Subquery(scat.values('categoria_id') ))
+    Categoria.objects.filter(id__in=Subquery(scat.values('categoria_id'))).values('id','descripcion')
+
+######################################
+############# INNER JOIN #############
+######################################
+
+    ##  PRIMERA FORMA
+    qs = SubCategoria.objects.select_related('categoria')
+    qs
+    str(qs.query)
+
+    'SELECT "app1_subcategoria"."id", "app1_subcategoria"."activo", "app1_subcategoria"."creado", "app1_subcategoria"."modificado", "app1_subcategoria"."categoria_id", "app1_subcategoria"."descripcion", "app1_categoria"."id", "app1_categoria"."activo", "app1_categoria"
+    ."creado", "app1_categoria"."modificado", "app1_categoria"."descripcion" FROM "app1_subcategoria" INNER JOIN "app1_categoria" ON ("app1_subcategoria"."categoria_id" = "app1_categoria"."id")'
+
+
+    ##  SEGUNDA FORMA
+
+    qs = SubCategoria.objects.filter(categoria__descripcion='Python')
+
+########################################################################################################################################################
+########################################################################################################################################################
+
+    # DEVOLVER EL ENESIMO REGISTRO
+
+    qs = Categoria.objects.all()[0]
+
+    # AGRUPAR REGISTROS
+
+    from django.db.models import Avg, Max, Min, Sum, Count
+
+    Categoria.objects.all().aggregate(Avg('id')) --> promedio
+    Categoria.objects.all().aggregate(Max('id')) --> Maximo
+    Categoria.objects.all().aggregate(Min('id')) --> Minimo
+    Categoria.objects.all().aggregate(Sum('id')) --> Sumar
+    Categoria.objects.all().aggregate(Count('id')) --> Contar
+    Categoria.objects.all().count()
+
+########################################################################################################################################################
+########################################################################################################################################################
+
+######################################
+########## INSERT REGISTRO ###########
+######################################
+
+    Categoria.objects.create(descripcion='Lenguaje y Literatura')
+
+    Categoria.objects.all().values('descripcion','activo','modificado')
+
+
+######################################
+### INSERT MULTIPLES REGISTROS #######
+######################################
+
+    Categoria.objects.bulk_create([Categoria(descripcion='Redes'),Categoria(descripcion='Matematicas'),Categoria(descripcion='Fisica')])
+
+######################################
+##### COPIAR O CLONAR REGISTRO #######
+######################################
+
+    cat = Categoria.objects.first()
+    cat
+    cat.pk=None
+    cat.save()
+    Categoria.objects.all().count()
+
+######################################
+####### Restringir Registros #########
+######################################
+
+    from app1.models import Unico
+    Unico.objects.create(nombre='Emma')
+
+######################################
+####### Actualizar Registros #########
+######################################
+
+    from app1.models import Unico, Categoria
+    one = Unico.objects.first()
+    one
+    one.nombre
+    one.id
+
+    one.nombre =  'Emma Aurora'
+    one.save()
+    two = Unico.objects.all()
+    two[0].nombre
+    two = Unico.objects.first()
+    two.nombre
+
+    Categoria.objects.filter(descripcion='Fisica')
+    Categoria.objects.filter(descripcion='Fisica').update(descripcion='Física')
+    Categoria.objects.all()
+
+
