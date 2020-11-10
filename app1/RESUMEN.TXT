@@ -227,7 +227,7 @@ manage.py shell
 
 
 ######################################
-####### Elimianar  Registros #########
+######## Eliminar  Registros #########
 ######################################
 
     from app1.models import Unico
@@ -265,11 +265,58 @@ manage.py shell
 ########################################################################################################################################################
 ########################################################################################################################################################
 
-
 ######################################
 ############ Order by  ###############
 ######################################
 
+    from app1.models import Categoria
+    Categoria.objects.all().order_by('id')  ## ascendente
+    Categoria.objects.all().order_by('-id') ## desendente
+
+     Categoria.objects.all().order_by('creado','id')
+     Categoria.objects.all().order_by('creado','id').values('creado','id','descripcion')
+     Categoria.objects.all().order_by('creado','-id').values_list('creado','id','descripcion')
+
+
+############################################
+# Order by Case Sensitive / Insensitive ####
+############################################
+
+    Categoria.objects.filter(descripcion='Física').update(descripcion='Framworks')
+    Categoria.objects.filter(descripcion='Framworks').update(descripcion='frameworks')
+    Categoria.objects.all().order_by('descripcion').values_list('descripcion', flat= True)
+
+    from django.db.models.functions import Lower
+
+    Categoria.objects.all().order_by(Lower('descripcion')).values_list('descripcion', flat= True)
+
+    Categoria.objects.annotate(lowdesc=Lower('descripcion')).order_by('lowdesc').values_list('descripcion', flat= True)
+
+############################################
+############# Order Forekey ################
+############################################
+
+    from app1.models import SubCategoria
+
+    SubCategoria.objects.filter(descripcion='Django').update(categoria_id= 4)
+    SubCategoria.objects.all().values_list('id','descripcion','categoria_id')
+
+    SubCategoria.objects.all().order_by('categoria__id').values_list('id','descripcion','categoria_id')
+    SubCategoria.objects.all().order_by('categoria__nombre').values_list('id','descripcion','categoria_id')
+    SubCategoria.objects.all().order_by('-categoria__id').values_list('id','descripcion','categoria_id')
+
+
+############################################
+############# Order annotated ##############
+############################################
+
+    from django.db.models import Count
+
+    Categoria.objects.annotate(conteo=Count('subcategoria'))
+    Categoria.objects.annotate(conteo=Count('subcategoria')).values_list('descripcion','conteo').order_by('-conteo')
+
+########################################################################################################################################################
+########################################################################################################################################################
 
 
 
