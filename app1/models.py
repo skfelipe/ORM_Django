@@ -28,6 +28,7 @@ class Categoria(ClaseModelo):
     class Meta:
         verbose_name_plural="Categproas"
 
+#### relacion uno a muchos
 class SubCategoria(ClaseModelo):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     descripcion = models.CharField(max_length=100, help_text='Descripcion de la sub categoria')
@@ -67,3 +68,29 @@ def categoria_saved(sender, **kwargs):
 @receiver(post_delete, sender=Categoria)
 def categoria_deleted(sender, **kwargs):
     print("Categoria Eliminada")
+
+from django.contrib.auth.models import User
+
+#### relacion uno a uno
+
+class UserParent(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+    father_name = models.CharField(max_length=50)
+    mother_name = models.CharField(max_length=50)
+
+## auto referencia
+
+class Empleado(models.Model):
+    supervisor = models.ForeignKey('self', on_delete=models.CASCADE)
+
+class Employee(models.Model):
+    supervisor= models.ForeignKey("app1.Employee", on_delete=models.CASCADE)
+
+## crear modelo de vista
+
+
+

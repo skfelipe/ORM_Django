@@ -318,8 +318,24 @@ manage.py shell
 ########################################################################################################################################################
 ########################################################################################################################################################
 
+    #convertir una base existente a un modelo django
+
+    # se debe tener configurada la base en el proyecto django
+
+    manage.py inspectdb
+    anage.py inspectdb > models_nuevo.py
 
 
+############################################
+######### Agregar Modelo para db ###########
+############################################
+
+
+    manage.py dbshell
+
+    select * from app1_categoria;
+    create view categoria_vies as select id, descripcion from app1_categoria;
+    select * from categoria_vies;
 
 
 
