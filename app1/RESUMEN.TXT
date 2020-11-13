@@ -358,6 +358,32 @@ manage.py shell
     create view categoria_vies as select id, descripcion from app1_categoria;
     select * from categoria_vies;
 
+    from app1.models import ViewCat
+
+    ViewCat.objects.all().values()
+
+############################################
+###### Nombrar columnas en una tabla #######
+############################################
+
+    --> se realizo una nueva clase en el modelo.py del app1
+
+
+############################################
+####### ejecutar SP Directo en la DB #######
+############################################
+
+    manage.py shell
+    from django.db import connection
+    with connection.cursor() as cursor:
+        cursor.execute("select id, descripcion from categoria_vies")
+        rawData = cursor.fetchall()
+        result = []
+        for r in rawData:
+            result.append(list(r))
+        context0 = {'consultas': result}
+
+    result
 
 
 

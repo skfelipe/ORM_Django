@@ -92,5 +92,20 @@ class Employee(models.Model):
 
 ## crear modelo de vista
 
+class ViewCat(models.Model):
+    descripcion = models.CharField(max_length=100)
 
+    class Meta:
+        managed = False
+        db_table = "categoria_vies"
 
+class NombreColumna(models.Model):
+    a = models.CharField(max_length=40, db_column='columna1')
+    columna2 = models.CharField(max_length=40)
+
+    def __str__(self):
+        return self.a
+
+    class Meta:
+        managed = False
+        db_table = "TablaCursoORMDjango"
